@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="נתנאל - פתרונות דיגיטליים לעסקים. פיתוח אתרים, אפליקציות ומערכות חכמות בקוד בהתאמה מלאה. ביצועים ללא פשרות, אבטחה וחופש פיתוח מוחלט." />
+  <meta name="theme-color" content="#050505" />
+  <title>נתנאל | קוד ומערכות — פתרונות דיגיטליים לעסקים</title>
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="נתנאל | קוד ומערכות" />
+  <meta property="og:description" content="פיתוח אתרים, אפליקציות ומערכות חכמות בקוד בהתאמה מלאה לעסק שלכם." />
+  <meta property="og:type" content="website" />
+
+  <!-- Google Font: Rubik -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            rubik: ['Rubik', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            base: '#050505',
+            gold1: '#BF953F',
+            gold2: '#FCF6BA',
+            gold3: '#B38728',
+            silver: '#E0E0E0',
+          },
+          keyframes: {
+            floaty: {
+              '0%,100%': { transform: 'translateY(0) rotate(0deg)' },
+              '50%': { transform: 'translateY(-22px) rotate(1.5deg)' },
+            },
+            glowpulse: {
+              '0%,100%': { boxShadow: '0 0 20px rgba(212,175,55,0.30)' },
+              '50%': { boxShadow: '0 0 42px rgba(212,175,55,0.55)' },
+            },
+            spinslow: {
+              from: { transform: 'rotate(0deg)' },
+              to: { transform: 'rotate(360deg)' },
+            },
+          },
+          animation: {
+            floaty: 'floaty 6s ease-in-out infinite',
+            glowpulse: 'glowpulse 3s ease-in-out infinite',
+            spinslow: 'spinslow 22s linear infinite',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    :root {
+      --gold-gradient: linear-gradient(135deg, #BF953F 0%, #FCF6BA 45%, #B38728 100%);
+      --border-gold: rgba(212, 175, 55, 0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Rubik', system-ui, sans-serif;
+      background-color: #050505;
+      color: #E5E5E5;
+      overflow-x: hidden;
+    }
+
+    /* Ambient background glow blobs */
+    .bg-ambient {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(600px circle at 85% 8%, rgba(191,149,63,0.10), transparent 60%),
+        radial-gradient(700px circle at 10% 40%, rgba(179,135,40,0.07), transparent 55%),
+        radial-gradient(500px circle at 50% 100%, rgba(212,175,55,0.06), transparent 60%);
+    }
+
+    /* Gold clipped text */
+    .text-gold-gradient {
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+
+    .glow-title { text-shadow: 0 0 30px rgba(212, 175, 55, 0.25); }
+
+    /* Card base with subtle gradient + gold hairline border */
+    .lux-card {
+      background: linear-gradient(160deg, #111111 0%, #161616 100%);
+      border: 1px solid var(--border-gold);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .lux-card:hover { border-color: rgba(212, 175, 55, 0.45); }
+
+    .gold-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #0a0a0a; }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(#BF953F, #B38728);
+      border-radius: 8px;
+    }
+
+    /* FAQ accordion smooth height */
+    .faq-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+      opacity: 0;
+    }
+    .faq-item.open .faq-body { opacity: 1; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-icon { transition: transform 0.35s ease; }
+
+    /* Mobile menu */
+    .mobile-menu {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .mobile-menu.hidden-menu {
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+    }
+
+    .btn-gold {
+      background: var(--gold-gradient);
+      color: #050505;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.show { opacity: 1; transform: translateY(0); }
+
+    /* Orbit ring in hero */
+    .orbit-ring {
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      border-top-color: rgba(252, 246, 186, 0.7);
+    }
+  </style>
+</head>
+
+<body class="font-rubik antialiased selection:bg-gold1/30">
+  <div class="bg-ambient"></div>
+
+  <!-- ============ NAVBAR ============ -->
+  <header class="sticky top-4 z-50 mx-auto w-[92%] max-w-6xl">
+    <nav class="flex items-center justify-between gap-4 rounded-full border px-4 py-3 backdrop-blur-lg md:px-6"
+         style="background: rgba(10,10,10,0.75); border-color: rgba(212,175,55,0.20);">
+      <!-- Right (start in RTL): Brand -->
+      <a href="#hero" class="flex items-center gap-2 shrink-0">
+        <span class="grid h-9 w-9 place-items-center overflow-hidden rounded-full border border-gold1/40 bg-black shadow-[0_0_12px_rgba(212,175,55,0.35)]"><img src="logo-icon.png" alt="נתנאל" class="h-full w-full object-cover" /></span>
+        <span class="hidden text-sm font-semibold text-silver sm:block">נתנאל <span class="text-gold1">|</span> קוד ומערכות</span>
+      </a>
+
+      <!-- Center: Links -->
+      <ul class="hidden items-center gap-7 text-sm text-gray-300 md:flex">
+        <li><a href="#services" class="transition-colors hover:text-gold2">שירותים</a></li>
+        <li><a href="#why" class="transition-colors hover:text-gold2">למה קוד</a></li>
+        <li><a href="#about" class="transition-colors hover:text-gold2">עלינו</a></li>
+        <li><a href="#contact" class="transition-colors hover:text-gold2">צור קשר</a></li>
+      </ul>
+
+      <!-- Left (end in RTL): CTA + burger -->
+      <div class="flex items-center gap-2">
+        <a href="https://wa.me/972584903610?text=%D7%94%D7%99%D7%99%20%D7%A0%D7%AA%D7%A0%D7%90%D7%9C%20%F0%9F%91%8B%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%93%D7%A8%D7%9A%20%D7%94%D7%90%D7%AA%D7%A8%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A4%D7%A8%D7%98%D7%99%D7%9D%20%D7%A2%D7%9C%20%D7%A4%D7%AA%D7%A8%D7%95%D7%9F%20%D7%93%D7%99%D7%92%D7%99%D7%98%D7%9C%D7%99%20%D7%9C%D7%A2%D7%A1%D7%A7%20%D7%A9%D7%9C%D7%99" target="_blank" rel="noopener"
+           class="hidden rounded-full btn-gold px-5 py-2 text-sm font-bold shadow-[0_0_20px_rgba(212,175,55,0.35)] transition-transform hover:scale-105 sm:inline-block">
+          שיחת ייעוץ
+        </a>
+        <button id="burger" aria-label="תפריט" class="grid h-10 w-10 place-items-center rounded-full border border-gold1/25 text-gold2 md:hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="mobile-menu hidden-menu absolute inset-x-0 top-[70px] mx-auto w-full rounded-3xl border p-5 backdrop-blur-lg md:hidden"
+         style="background: rgba(10,10,10,0.92); border-color: rgba(212,175,55,0.20);">
+      <ul class="flex flex-col gap-1 text-gray-200">
+        <li><a href="#services" class="menu-link block rounded-xl px-4 py-3 transition-colors hover:bg-gold1/10">שירותים</a></li>
+        <li><a href="#why" class="menu-link block rounded-xl px-4 py-3 transition-colors hover:bg-gold1/10">למה קוד</a></li>
+        <li><a href="#about" class="menu-link block rounded-xl px-4 py-3 transition-colors hover:bg-gold1/10">עלינו</a></li>
+        <li><a href="#contact" class="menu-link block rounded-xl px-4 py-3 transition-colors hover:bg-gold1/10">צור קשר</a></li>
+      </ul>
+      <a href="https://wa.me/972584903610?text=%D7%94%D7%99%D7%99%20%D7%A0%D7%AA%D7%A0%D7%90%D7%9C%20%F0%9F%91%8B%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%93%D7%A8%D7%9A%20%D7%94%D7%90%D7%AA%D7%A8%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A4%D7%A8%D7%98%D7%99%D7%9D%20%D7%A2%D7%9C%20%D7%A4%D7%AA%D7%A8%D7%95%D7%9F%20%D7%93%D7%99%D7%92%D7%99%D7%98%D7%9C%D7%99%20%D7%9C%D7%A2%D7%A1%D7%A7%20%D7%A9%D7%9C%D7%99" target="_blank" rel="noopener"
+         class="mt-3 block rounded-full btn-gold px-5 py-3 text-center text-sm font-bold">שיחת ייעוץ</a>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section id="hero" class="relative mx-auto flex min-h-screen max-w-6xl items-center px-5 py-24">
+    <div class="grid w-full items-center gap-12 md:grid-cols-2">
+
+      <!-- LEFT (visual) — appears second in RTL flow, placed via order on desktop -->
+      <div class="relative order-2 hidden h-[420px] items-center justify-center md:order-1 md:flex">
+        <!-- glow backdrop -->
+        <div class="absolute h-64 w-64 rounded-full bg-gold1/20 blur-[90px]"></div>
+        <!-- orbit rings -->
+        <div class="absolute h-80 w-80 rounded-full orbit-ring animate-spinslow"></div>
+        <div class="absolute h-56 w-56 rounded-full orbit-ring animate-spinslow" style="animation-duration:14s; animation-direction:reverse;"></div>
+
+        <!-- floating logo -->
+        <div class="relative animate-floaty" style="animation-duration:6s;">
+          <div class="lux-card grid h-52 w-52 place-items-center overflow-hidden rounded-3xl p-4 backdrop-blur-md shadow-[0_0_50px_rgba(212,175,55,0.25)]">
+            <img src="logo.jpeg" alt="נתנאל — פתרונות דיגיטליים לעסקים" class="h-full w-full object-contain" />
+          </div>
+          <!-- floating chips -->
+          <span class="absolute -top-5 -left-6 rounded-lg border border-gold1/30 bg-black/70 px-3 py-1 text-[11px] font-medium text-gold2 backdrop-blur">99+ Performance</span>
+          <span class="absolute -bottom-4 -right-6 rounded-lg border border-gold1/30 bg-black/70 px-3 py-1 text-[11px] font-medium text-silver backdrop-blur">SSR • API • CRM</span>
+        </div>
+      </div>
+
+      <!-- RIGHT (content) -->
+      <div class="order-1 md:order-2">
+        <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-gold1/25 bg-white/[0.02] px-4 py-1.5">
+          <span class="relative flex h-2 w-2">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold2 opacity-75"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full btn-gold"></span>
+          </span>
+          <span class="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold gold-text" style="color:#D4AF37">Custom Code &amp; Premium Development</span>
+        </div>
+
+        <h1 class="glow-title text-4xl font-extrabold leading-[1.15] text-silver sm:text-5xl lg:text-6xl">
+          לוקחים את העסק שלכם<br class="hidden sm:block" />
+          <span class="text-gold-gradient">לקצה הדיגיטלי</span>
+        </h1>
+
+        <p class="mt-6 max-w-xl text-base leading-relaxed text-gray-400 sm:text-lg">
+          פיתוח אתרים, אפליקציות ומערכות חכמות בקוד בהתאמה מלאה לצרכים של העסק שלכם.
+          בלי תבניות מוכנות, בלי מגבלות ביצועים של פלטפורמות סגורות.
+        </p>
+
+        <div class="mt-9 flex flex-col gap-4 sm:flex-row">
+          <a href="https://wa.me/972584903610?text=%D7%94%D7%99%D7%99%20%D7%A0%D7%AA%D7%A0%D7%90%D7%9C%20%F0%9F%91%8B%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%93%D7%A8%D7%9A%20%D7%94%D7%90%D7%AA%D7%A8%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A4%D7%A8%D7%98%D7%99%D7%9D%20%D7%A2%D7%9C%20%D7%A4%D7%AA%D7%A8%D7%95%D7%9F%20%D7%93%D7%99%D7%92%D7%99%D7%98%D7%9C%D7%99%20%D7%9C%D7%A2%D7%A1%D7%A7%20%D7%A9%D7%9C%D7%99" target="_blank" rel="noopener"
+             class="animate-glowpulse inline-flex items-center justify-center gap-2 rounded-2xl btn-gold px-8 py-4 text-base font-bold transition-transform hover:scale-[1.03]">
+            לאפיון פתרון בוואטסאפ 💬
+          </a>
+          <a href="#services"
+             class="inline-flex items-center justify-center rounded-2xl border border-gold1/30 px-8 py-4 text-base font-semibold text-silver transition-colors hover:bg-white/[0.03]">
+            לשירותים שלנו
+          </a>
+        </div>
+
+        <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-gray-500">
+          <span class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full btn-gold"></span> אתרי תדמית</span>
+          <span class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full btn-gold"></span> אפליקציות</span>
+          <span class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full btn-gold"></span> מערכות תורים</span>
+          <span class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full btn-gold"></span> CRM וניהול</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHY CUSTOM CODE ============ -->
+  <section id="why" class="mx-auto max-w-6xl px-5 py-20">
+    <div class="reveal mx-auto mb-14 max-w-2xl text-center">
+      <div class="gold-divider mx-auto mb-6 w-24"></div>
+      <h2 class="glow-title text-3xl font-extrabold text-silver sm:text-4xl">
+        הכוח של <span class="text-gold-gradient">קוד נקי</span> מול תבניות מוכנות
+      </h2>
+      <p class="mt-4 text-gray-400">
+        כשבונים בקוד — אתם לא מתפשרים על מהירות, אבטחה או גמישות. כל שורה נכתבת בשביל העסק שלכם, ולא בשביל מיליון עסקים אחרים.
+      </p>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-3">
+      <!-- Card 1 -->
+      <div class="reveal lux-card group rounded-3xl p-7 transition-transform duration-300 hover:-translate-y-2">
+        <div class="mb-5 grid h-14 w-14 place-items-center rounded-2xl border border-gold1/25 bg-black/40">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FCF6BA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3 class="mb-3 text-xl font-bold text-silver">ביצועים ומהירות קצה</h3>
+        <p class="text-sm leading-relaxed text-gray-400">
+          רינדור בצד השרת (SSR), טעינה מיידית וציוני Core Web Vitals ירוקים. אתר מהיר = דירוג SEO גבוה יותר בגוגל, פחות נטישות ויותר לקוחות שמשלימים פעולה.
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="reveal lux-card group rounded-3xl p-7 transition-transform duration-300 hover:-translate-y-2">
+        <div class="mb-5 grid h-14 w-14 place-items-center rounded-2xl border border-gold1/25 bg-black/40">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FCF6BA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3 class="mb-3 text-xl font-bold text-silver">אבטחת מידע וארכיטקטורה חסרת פשרות</h3>
+        <p class="text-sm leading-relaxed text-gray-400">
+          Backend בהתאמה אישית, ללא תוספים חיצוניים פרוצים שמהווים דלת אחורית לתקיפות. הצפנה, ניהול הרשאות ותשתית שנבנתה מהיסוד להיות מאובטחת.
+        </p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="reveal lux-card group rounded-3xl p-7 transition-transform duration-300 hover:-translate-y-2">
+        <div class="mb-5 grid h-14 w-14 place-items-center rounded-2xl border border-gold1/25 bg-black/40">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FCF6BA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        </div>
+        <h3 class="mb-3 text-xl font-bold text-silver">חופש פיתוח מוחלט (Scale)</h3>
+        <p class="text-sm leading-relaxed text-gray-400">
+          בניית לוגיקות עסקיות מורכבות, ממשקי API מותאמים ותהליכי עבודה (Workflows) בדיוק כמו שהעסק עובד. המערכת גדלה איתכם — בלי לפגוש קיר של פלטפורמה סגורה.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SERVICES ============ -->
+  <section id="services" class="mx-auto max-w-6xl px-5 py-20">
+    <div class="reveal mx-auto mb-14 max-w-2xl text-center">
+      <div class="gold-divider mx-auto mb-6 w-24"></div>
+      <h2 class="glow-title text-3xl font-extrabold text-silver sm:text-4xl">
+        הפתרונות <span class="text-gold-gradient">שאני מפתח</span> עבורכם
+      </h2>
+      <p class="mt-4 text-gray-400">מאתר תדמית שמוכר, ועד מערכת ניהול שלמה שמריצה את העסק על אוטומט.</p>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-3">
+      <!-- Service 1 -->
+      <div class="reveal lux-card relative overflow-hidden rounded-3xl p-8 transition-transform duration-300 hover:-translate-y-2">
+        <div class="absolute -top-10 -left-10 h-32 w-32 rounded-full bg-gold1/10 blur-2xl"></div>
+        <div class="mb-6 grid h-16 w-16 place-items-center rounded-2xl btn-gold shadow-[0_0_25px_rgba(212,175,55,0.4)]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#050505" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3 class="mb-3 text-xl font-bold text-silver">אתרי תדמית ודפי נחיתה יוקרתיים</h3>
+        <p class="mb-5 text-sm leading-relaxed text-gray-400">
+          אתרים שמשדרים את הרמה של המותג שלכם — ביצועים קיצוניים, התאמת UI/UX מדויקת לזהות העסק, ואופטימיזציה להמרות שהופכת מבקרים ללקוחות.
+        </p>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li class="flex items-center gap-2"><span class="text-gold2">✦</span> עיצוב מותאם אישית 100%</li>
+          <li class="flex items-center gap-2"><span class="text-gold2">✦</span> טעינה מהירה וציון SEO גבוה</li>
+          <li class="flex items-center gap-2"><span class="text-gold2">✦</span> אחוזי המרה ממוקדי מטרה</li>
+        </ul>
+      </div>
+
+      <!-- Service 2 -->
+      <div class="reveal lux-card relative overflow-hidden rounded-3xl p-8 transition-transform duration-300 hover:-translate-y-2">
+        <div class="absolute -top-10 -left-10 h-32 w-32 rounded-full bg-gold1/10 blur-2xl"></div>
+        <div class="mb-6 grid h-16 w-16 place-items-center rounded-2xl btn-gold shadow-[0_0_25px_rgba(212,175,55,0.4)]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#050505" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+        </div>
+        <h3 class="mb-3 text-xl font-bold text-silver">מערכות תורים ויומנים אוטומטיים</h3>
+        <p class="mb-5 text-sm leading-relaxed text-gray-400">
+          מערכת הזמנת תורים חכמה שעובדת בשבילכם 24/7 — לקוחות קובעים לבד, והיומן שלכם מתמלא בלי טלפונים ובלי כפילויות.
+        </p>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li class="flex items-center gap-2"><span class="text-gold2">✦</span> סנכרון בזמן אמת (Real-time)</li>
+          <li class="flex items-center gap-2"><span class="text-gold2">✦</span> תזכורות SMS / וואטסאפ</li>
+          <li class="flex items-center gap-2"><span class="text-gold2">✦</span> תהליכי הזמנה מותאמים אישית</li>
+        </ul>
+      </div>
+
+      <!-- Service 3 -->
+      <div class="reveal lux-card relative overflow-hidden rounded-3xl p-8 transition-transform duration-300 hover:-translate-y-2">
+        <div class="absolute -top-10 -left-10 h-32 w-32 rounded-full bg-gold1/10 blur-2xl"></div>
+        <div class="mb-6 grid h-16 w-16 place-items-center rounded-2xl btn-gold shadow-[0_0_25px_rgba(212,175,55,0.4)]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#050505" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
+        </div>
+        <h3 class="mb-3 text-xl font-bold text-silver">אפליקציות ומערכות ניהול ו-CRM</h3>
+        <p class="mb-5 text-sm leading-relaxed text-gray-400">
+          מערכת ניהול שתפורה בול לעסק שלכם: מעקב אחר לקוחות, דוחות חכמים ואוטומציות שחוסכות לכם שעות עבודה בכל יום.
+        </p>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li class="flex items-center gap-2"><span class="text-gold2">✦</span> מעקב וניהול לקוחות</li>
+          <li class="flex items-center gap-2"><span class="text-gold2">✦</span> דאשבורדים דינמיים</li>
+          <li class="flex items-center gap-2"><span class="text-gold2">✦</span> סקריפטים לאוטומציה עסקית</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about" class="mx-auto max-w-6xl px-5 py-20">
+    <div class="grid items-center gap-12 md:grid-cols-2">
+      <!-- Avatar placeholder -->
+      <div class="reveal relative flex justify-center">
+        <div class="absolute h-64 w-64 rounded-full bg-gold1/20 blur-[80px]"></div>
+        <div class="lux-card relative grid h-80 w-full max-w-sm place-items-center overflow-hidden rounded-[2rem]">
+          <div class="text-center">
+            <div class="mx-auto mb-4 grid h-28 w-28 place-items-center rounded-full btn-gold text-5xl font-black shadow-[0_0_40px_rgba(212,175,55,0.5)]">נ</div>
+            <p class="text-sm font-semibold text-silver">נתנאל</p>
+            <p class="text-xs text-gray-500">Full-Stack Developer</p>
+          </div>
+          <!-- corner accents -->
+          <span class="absolute right-4 top-4 h-6 w-6 rounded-tr-xl border-r border-t border-gold1/40"></span>
+          <span class="absolute left-4 bottom-4 h-6 w-6 rounded-bl-xl border-b border-l border-gold1/40"></span>
+        </div>
+      </div>
+
+      <!-- Story -->
+      <div class="reveal">
+        <div class="gold-divider mb-6 w-24"></div>
+        <h2 class="glow-title text-3xl font-extrabold leading-tight text-silver sm:text-4xl">
+          נתנאל — מפתח Full-Stack<br />
+          <span class="text-gold-gradient">והטכנולוג שמאחורי העסק שלכם</span>
+        </h2>
+        <p class="mt-6 leading-relaxed text-gray-400">
+          אני מפתח צעיר, חד ואובססיבי לטכנולוגיה — ומאמין שעסק שמכבד את עצמו לא צריך "לגרור" תבנית מוכנה של וויקס או אלמנטור. אני מדלג על הדרך הקלה ובונה פתרונות הנדסיים ברמה גבוהה, בקוד, שנבנים בדיוק סביב מה שהעסק שלכם באמת צריך.
+        </p>
+        <p class="mt-4 leading-relaxed text-gray-400">
+          לעבוד עם מפתח צעיר זה יתרון: אימוץ של ה-Tech Stack הכי מתקדם שקיים, מהירות תגובה בלתי מתפשרת, ומחויבות מסביב לשעון. אני לא סתם "מספק אתר" — אני שותף טכנולוגי שנשאר איתכם גם אחרי העלייה לאוויר.
+        </p>
+
+        <div class="mt-8 grid grid-cols-3 gap-4 text-center">
+          <div class="lux-card rounded-2xl p-4">
+            <p class="text-2xl font-extrabold text-gold-gradient">100%</p>
+            <p class="mt-1 text-xs text-gray-500">קוד בהתאמה אישית</p>
+          </div>
+          <div class="lux-card rounded-2xl p-4">
+            <p class="text-2xl font-extrabold text-gold-gradient">24/7</p>
+            <p class="mt-1 text-xs text-gray-500">זמינות ומחויבות</p>
+          </div>
+          <div class="lux-card rounded-2xl p-4">
+            <p class="text-2xl font-extrabold text-gold-gradient">A+</p>
+            <p class="mt-1 text-xs text-gray-500">ביצועים ואבטחה</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq" class="mx-auto max-w-3xl px-5 py-20">
+    <div class="reveal mb-12 text-center">
+      <div class="gold-divider mx-auto mb-6 w-24"></div>
+      <h2 class="glow-title text-3xl font-extrabold text-silver sm:text-4xl">
+        שאלות <span class="text-gold-gradient">נפוצות</span>
+      </h2>
+      <p class="mt-4 text-gray-400">כל מה שרציתם לדעת לפני שמתחילים.</p>
+    </div>
+
+    <div class="space-y-4" id="faqWrap">
+      <!-- Item 1 -->
+      <div class="faq-item lux-card overflow-hidden rounded-2xl">
+        <button class="faq-head flex w-full items-center justify-between gap-4 px-6 py-5 text-right">
+          <span class="text-base font-semibold text-silver">מה היתרון של קוד על פני פלטפורמות כמו וויקס או וורדפרס?</span>
+          <span class="faq-icon grid h-7 w-7 shrink-0 place-items-center rounded-full btn-gold text-lg font-bold text-black">+</span>
+        </button>
+        <div class="faq-body">
+          <p class="px-6 pb-6 text-sm leading-relaxed text-gray-400">
+            פלטפורמות מוכנות טוענות המון קוד מיותר שמאט את האתר ופוגע בדירוג בגוגל, ומגבילות אתכם למה שהתבנית מאפשרת. פיתוח בקוד נותן לכם אתר מהיר בהרבה, מאובטח יותר (בלי תוספים פרוצים), וחופש מוחלט לבנות בדיוק את הפונקציונליות שהעסק צריך — בלי תקרת זכוכית.
+          </p>
+        </div>
+      </div>
+
+      <!-- Item 2 -->
+      <div class="faq-item lux-card overflow-hidden rounded-2xl">
+        <button class="faq-head flex w-full items-center justify-between gap-4 px-6 py-5 text-right">
+          <span class="text-base font-semibold text-silver">האם המערכות מותאמות לסמארטפונים?</span>
+          <span class="faq-icon grid h-7 w-7 shrink-0 place-items-center rounded-full btn-gold text-lg font-bold text-black">+</span>
+        </button>
+        <div class="faq-body">
+          <p class="px-6 pb-6 text-sm leading-relaxed text-gray-400">
+            בהחלט. כל פרויקט נבנה בגישת Mobile-First — כלומר החוויה מתוכננת קודם כל לנייד, ורק אחר כך מותאמת למסכים גדולים. הרוב המוחלט של הגולשים שלכם מגיעים מהטלפון, ולכן המערכת תיראה ותעבוד מושלם בכל גודל מסך, בכל דפדפן ובכל מכשיר.
+          </p>
+        </div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="faq-item lux-card overflow-hidden rounded-2xl">
+        <button class="faq-head flex w-full items-center justify-between gap-4 px-6 py-5 text-right">
+          <span class="text-base font-semibold text-silver">איך מתבצע תהליך העבודה איתך?</span>
+          <span class="faq-icon grid h-7 w-7 shrink-0 place-items-center rounded-full btn-gold text-lg font-bold text-black">+</span>
+        </button>
+        <div class="faq-body">
+          <p class="px-6 pb-6 text-sm leading-relaxed text-gray-400">
+            מתחילים בשיחת אפיון שבה אני מבין לעומק את העסק, המטרות והצרכים. משם אני בונה תכנית ואפיון מדויק, עובר לעיצוב ולפיתוח תוך עדכונים שוטפים לאורך הדרך, ומסיים בבדיקות, אופטימיזציה והעלאה לאוויר. אתם מלווים בכל שלב — בלי הפתעות ובלי ז'רגון טכני מסובך.
+          </p>
+        </div>
+      </div>
+
+      <!-- Item 4 -->
+      <div class="faq-item lux-card overflow-hidden rounded-2xl">
+        <button class="faq-head flex w-full items-center justify-between gap-4 px-6 py-5 text-right">
+          <span class="text-base font-semibold text-silver">האם יש תמיכה ותחזוקה לאחר עליית האתר לאוויר?</span>
+          <span class="faq-icon grid h-7 w-7 shrink-0 place-items-center rounded-full btn-gold text-lg font-bold text-black">+</span>
+        </button>
+        <div class="faq-body">
+          <p class="px-6 pb-6 text-sm leading-relaxed text-gray-400">
+            כן, בהחלט. אני לא נעלם אחרי ההשקה. יש שירותי תמיכה ותחזוקה שוטפים — עדכוני אבטחה, גיבויים, שיפורי ביצועים ותוספות עתידיות. אתם מקבלים שותף טכנולוגי ארוך טווח שדואג שהמערכת תמשיך לרוץ חלק ולהתפתח יחד עם העסק.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT / FOOTER ============ -->
+  <section id="contact" class="mx-auto max-w-6xl px-5 py-20">
+    <div class="lux-card relative overflow-hidden rounded-[2.5rem] px-6 py-14 text-center sm:px-12">
+      <div class="absolute -top-20 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-gold1/15 blur-[90px]"></div>
+      <div class="relative">
+        <h2 class="glow-title text-3xl font-extrabold text-silver sm:text-4xl">
+          מוכנים לקחת את העסק <span class="text-gold-gradient">לקצה הדיגיטלי?</span>
+        </h2>
+        <p class="mx-auto mt-4 max-w-xl text-gray-400">
+          בואו נדבר. שיחת ייעוץ ראשונית ואפיון פתרון — ללא התחייבות.
+        </p>
+        <a href="https://wa.me/972584903610?text=%D7%94%D7%99%D7%99%20%D7%A0%D7%AA%D7%A0%D7%90%D7%9C%20%F0%9F%91%8B%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%93%D7%A8%D7%9A%20%D7%94%D7%90%D7%AA%D7%A8%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A4%D7%A8%D7%98%D7%99%D7%9D%20%D7%A2%D7%9C%20%D7%A4%D7%AA%D7%A8%D7%95%D7%9F%20%D7%93%D7%99%D7%92%D7%99%D7%98%D7%9C%D7%99%20%D7%9C%D7%A2%D7%A1%D7%A7%20%D7%A9%D7%9C%D7%99" target="_blank" rel="noopener"
+           class="animate-glowpulse mt-8 inline-flex items-center justify-center gap-2 rounded-2xl btn-gold px-10 py-4 text-base font-bold transition-transform hover:scale-[1.03]">
+          לאפיון פתרון בוואטסאפ 💬
+        </a>
+      </div>
+    </div>
+
+    <footer class="mt-14">
+      <div class="gold-divider mb-8 w-full"></div>
+      <div class="flex flex-col items-center justify-between gap-6 md:flex-row">
+        <div class="flex items-center gap-2">
+          <span class="grid h-9 w-9 place-items-center overflow-hidden rounded-full border border-gold1/40 bg-black shadow-[0_0_12px_rgba(212,175,55,0.35)]"><img src="logo-icon.png" alt="נתנאל" class="h-full w-full object-cover" /></span>
+          <span class="text-sm font-semibold text-silver">נתנאל <span class="text-gold1">|</span> קוד ומערכות</span>
+        </div>
+
+        <ul class="flex flex-wrap items-center justify-center gap-x-7 gap-y-2 text-sm text-gray-400">
+          <li><a href="#services" class="transition-colors hover:text-gold2">שירותים</a></li>
+          <li><a href="#why" class="transition-colors hover:text-gold2">למה קוד</a></li>
+          <li><a href="#about" class="transition-colors hover:text-gold2">עלינו</a></li>
+          <li><a href="#faq" class="transition-colors hover:text-gold2">שאלות נפוצות</a></li>
+          <li><a href="#" data-a11y-statement class="transition-colors hover:text-gold2">נגישות</a></li>
+        </ul>
+
+        <a href="https://wa.me/972584903610?text=%D7%94%D7%99%D7%99%20%D7%A0%D7%AA%D7%A0%D7%90%D7%9C%20%F0%9F%91%8B%20%D7%94%D7%92%D7%A2%D7%AA%D7%99%20%D7%93%D7%A8%D7%9A%20%D7%94%D7%90%D7%AA%D7%A8%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A4%D7%A8%D7%98%D7%99%D7%9D%20%D7%A2%D7%9C%20%D7%A4%D7%AA%D7%A8%D7%95%D7%9F%20%D7%93%D7%99%D7%92%D7%99%D7%98%D7%9C%D7%99%20%D7%9C%D7%A2%D7%A1%D7%A7%20%D7%A9%D7%9C%D7%99" target="_blank" rel="noopener"
+           class="rounded-full border border-gold1/30 px-5 py-2 text-sm font-semibold text-gold2 transition-colors hover:bg-gold1/10">
+          דברו איתי 💬
+        </a>
+      </div>
+      <p class="mt-8 text-center text-xs text-gray-600">
+        © 2026 נתנאל פתרונות דיגיטליים. כל הזכויות שמורות.
+      </p>
+    </footer>
+  </section>
+
+  <!-- ============ ACCESSIBILITY WIDGET ============ -->
+  <style>
+    #a11yBtn {
+      position: fixed; bottom: 20px; left: 20px; z-index: 9998;
+      width: 52px; height: 52px; border-radius: 9999px;
+      background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 45%, #B38728 100%);
+      display: grid; place-items: center; cursor: pointer; border: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 18px rgba(212,175,55,0.4);
+      transition: transform 0.2s ease;
+    }
+    #a11yBtn:hover { transform: scale(1.08); }
+    #a11yPanel, #a11yModal { font-family: 'Rubik', system-ui, sans-serif; }
+    #a11yPanel {
+      position: fixed; bottom: 84px; left: 20px; z-index: 9999;
+      width: 300px; max-width: calc(100vw - 40px);
+      background: linear-gradient(160deg, #111 0%, #191919 100%);
+      border: 1px solid rgba(212,175,55,0.35); border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6); padding: 16px; color: #E5E5E5;
+    }
+    #a11yPanel .a11y-title { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    #a11yPanel .a11y-title span { font-weight: 800; font-size: 16px; color: #FCF6BA; }
+    #a11yPanel .a11y-x { background:none; border:none; color:#999; font-size:18px; cursor:pointer; line-height:1; }
+    .a11y-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .a11y-grid button {
+      display:flex; flex-direction:column; align-items:center; gap:5px;
+      padding: 12px 6px; border-radius: 12px; cursor:pointer; font-size: 12px; font-weight:600;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.15); color:#E0E0E0;
+      transition: border-color .2s, background .2s;
+    }
+    .a11y-grid button:hover { border-color: rgba(212,175,55,0.5); }
+    .a11y-grid button[aria-pressed="true"] { background: rgba(212,175,55,0.16); border-color:#BF953F; color:#FCF6BA; }
+    .a11y-grid button svg { width:22px; height:22px; }
+    .a11y-reset { grid-column: 1 / -1; background: rgba(191,149,63,0.12) !important; border-color: rgba(212,175,55,0.4) !important; color:#FCF6BA !important; flex-direction:row !important; justify-content:center; }
+    #a11yPanel .a11y-statement-link { display:block; text-align:center; margin-top:12px; font-size:12px; color:#B38728; text-decoration:underline; cursor:pointer; }
+    #a11yModal {
+      position: fixed; inset: 0; z-index: 10000; place-items:center; padding: 20px;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+    }
+    #a11yModal:not([hidden]) { display: grid; }
+    #a11yModal .a11y-modal-card {
+      background: linear-gradient(160deg,#111,#191919); border:1px solid rgba(212,175,55,0.35);
+      border-radius: 20px; max-width: 560px; width:100%; max-height: 82vh; overflow-y:auto; padding: 28px; color:#D7D7D7;
+    }
+    #a11yModal h3 { color:#FCF6BA; font-size:22px; font-weight:800; margin: 0 0 14px; }
+    #a11yModal p { font-size:14px; line-height:1.8; margin: 0 0 12px; }
+    #a11yModal a { color:#FCF6BA; }
+    #a11yModal .a11y-modal-close { margin-top:10px; width:100%; padding:12px; border-radius:12px; border:none; cursor:pointer; font-weight:700;
+      background: linear-gradient(135deg,#BF953F,#FCF6BA,#B38728); color:#050505; }
+    html.a11y-links a { text-decoration: underline !important; text-underline-offset: 3px; }
+    html.a11y-readable *, html.a11y-readable { font-family: Arial, "Helvetica Neue", sans-serif !important; letter-spacing: .3px; }
+    html.a11y-nomotion *, html.a11y-nomotion { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    html.a11y-nomotion .bg-ambient { animation: none !important; }
+  </style>
+
+  <button id="a11yBtn" aria-label="פתיחת תפריט נגישות" aria-haspopup="dialog" aria-expanded="false">
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="#050505" aria-hidden="true"><circle cx="12" cy="3.6" r="2.2"/><path d="M21 7.5c0 .8-.6 1.4-1.4 1.5l-4.1.5v3.1l1.9 6.2c.2.8-.2 1.6-1 1.8-.8.2-1.6-.2-1.8-1L12.8 15h-.6l-1.8 6.1c-.2.8-1 1.2-1.8 1-.8-.2-1.2-1-1-1.8l1.9-6.2V9.9L5.4 9.4C4.6 9.3 4 8.6 4 7.8c.1-.8.8-1.4 1.6-1.3L10 7h4l4.4-.5c.8-.1 1.5.5 1.6 1z"/></svg>
+  </button>
+
+  <div id="a11yPanel" role="dialog" aria-label="תפריט נגישות" dir="rtl" hidden>
+    <div class="a11y-title"><span>תפריט נגישות</span><button class="a11y-x" id="a11yClose" aria-label="סגירת התפריט">✕</button></div>
+    <div class="a11y-grid">
+      <button data-a="fontUp"><span style="font-size:18px;font-weight:800">א+</span>הגדלת טקסט</button>
+      <button data-a="fontDown"><span style="font-size:14px;font-weight:800">א−</span>הקטנת טקסט</button>
+      <button data-a="contrast" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v18" fill="currentColor"/></svg>ניגודיות</button>
+      <button data-a="grayscale" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>גווני אפור</button>
+      <button data-a="links" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg>הדגשת קישורים</button>
+      <button data-a="readable" aria-pressed="false"><span style="font-size:16px;font-weight:800;font-family:Arial">Aa</span>פונט קריא</button>
+      <button data-a="nomotion" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>עצירת אנימציות</button>
+      <button data-a="reset" class="a11y-reset"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>איפוס הגדרות</button>
+    </div>
+    <span class="a11y-statement-link" data-a11y-statement>הצהרת נגישות</span>
+  </div>
+
+  <div id="a11yModal" role="dialog" aria-label="הצהרת נגישות" aria-modal="true" hidden>
+    <div class="a11y-modal-card" dir="rtl">
+      <h3>הצהרת נגישות</h3>
+      <p>אתר זה שם דגש על הנגשת השירות והמידע לכלל הגולשים, לרבות אנשים עם מוגבלות. אנו רואים חשיבות רבה במתן שירות שוויוני ונגיש, ופועלים כדי שכל אדם יוכל לגלוש באתר בקלות ובנוחות.</p>
+      <p>האתר נבנה בהתאם להנחיות תקן ישראלי (ת"י 5568) ברמת AA ולהמלצות מסמך ה־WCAG 2.1 של ארגון ה־W3C. באתר מוטמע תפריט נגישות (הכפתור בפינה) המאפשר התאמות תצוגה: הגדלת והקטנת טקסט, ניגודיות גבוהה, גווני אפור, הדגשת קישורים, פונט קריא ועצירת אנימציות.</p>
+      <p>למרות מאמצינו, ייתכן שיימצאו רכיבים שטרם הונגשו במלואם. אנו ממשיכים לשפר את נגישות האתר באופן שוטף.</p>
+      <p><strong>נתקלתם בבעיית נגישות?</strong><br />נשמח לקבל את פנייתכם ולטפל בהקדם — נתנאל, פתרונות דיגיטליים:<br />וואטסאפ / טלפון: <a href="tel:+972584903610">058-490-3610</a></p>
+      <p style="font-size:12px;color:#8a8a8a">עודכן לאחרונה: ספטמבר 2026</p>
+      <button class="a11y-modal-close" id="a11yModalClose">סגירה</button>
+    </div>
+  </div>
+
+  <script>
+    // ---- Accessibility widget ----
+    (function () {
+      const root = document.documentElement;
+      const KEY = 'a11yPrefs_netanel';
+      const btn = document.getElementById('a11yBtn');
+      const panel = document.getElementById('a11yPanel');
+      const modal = document.getElementById('a11yModal');
+      let s = { font: 0, contrast: false, grayscale: false, links: false, readable: false, nomotion: false };
+      try { const raw = localStorage.getItem(KEY); if (raw) s = Object.assign(s, JSON.parse(raw)); } catch (e) {}
+
+      function apply() {
+        root.style.fontSize = s.font ? (100 + s.font * 10) + '%' : '';
+        const f = [];
+        if (s.grayscale) f.push('grayscale(1)');
+        if (s.contrast) f.push('contrast(1.4) saturate(1.35)');
+        root.style.filter = f.join(' ');
+        root.classList.toggle('a11y-links', s.links);
+        root.classList.toggle('a11y-readable', s.readable);
+        root.classList.toggle('a11y-nomotion', s.nomotion);
+        ['contrast', 'grayscale', 'links', 'readable', 'nomotion'].forEach((k) => {
+          const b = panel.querySelector('[data-a="' + k + '"]');
+          if (b) b.setAttribute('aria-pressed', String(!!s[k]));
+        });
+        try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+      }
+
+      function togglePanel(open) {
+        const show = open !== undefined ? open : panel.hidden;
+        panel.hidden = !show;
+        btn.setAttribute('aria-expanded', String(show));
+      }
+
+      btn.addEventListener('click', () => togglePanel());
+      document.getElementById('a11yClose').addEventListener('click', () => togglePanel(false));
+
+      panel.querySelectorAll('[data-a]').forEach((b) => {
+        b.addEventListener('click', () => {
+          const a = b.getAttribute('data-a');
+          if (a === 'fontUp') s.font = Math.min(4, s.font + 1);
+          else if (a === 'fontDown') s.font = Math.max(-2, s.font - 1);
+          else if (a === 'reset') s = { font: 0, contrast: false, grayscale: false, links: false, readable: false, nomotion: false };
+          else s[a] = !s[a];
+          apply();
+        });
+      });
+
+      function openModal(e) { if (e) e.preventDefault(); modal.hidden = false; }
+      function closeModal() { modal.hidden = true; }
+      document.querySelectorAll('[data-a11y-statement]').forEach((el) => el.addEventListener('click', openModal));
+      document.getElementById('a11yModalClose').addEventListener('click', closeModal);
+      modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); togglePanel(false); } });
+
+      apply();
+    })();
+  </script>
+
+  <!-- ============ VANILLA JS ============ -->
+  <script>
+    // --- Mobile menu toggle ---
+    const burger = document.getElementById('burger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    burger.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden-menu');
+    });
+    document.querySelectorAll('.menu-link').forEach((link) => {
+      link.addEventListener('click', () => mobileMenu.classList.add('hidden-menu'));
+    });
+
+    // --- FAQ accordion ---
+    document.querySelectorAll('.faq-item').forEach((item) => {
+      const head = item.querySelector('.faq-head');
+      const body = item.querySelector('.faq-body');
+      head.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        // close all
+        document.querySelectorAll('.faq-item').forEach((el) => {
+          el.classList.remove('open');
+          el.querySelector('.faq-body').style.maxHeight = null;
+          el.querySelector('.faq-icon').textContent = '+';
+        });
+        // open clicked one
+        if (!isOpen) {
+          item.classList.add('open');
+          body.style.maxHeight = body.scrollHeight + 'px';
+          item.querySelector('.faq-icon').textContent = '−';
+        }
+      });
+    });
+
+    // --- Scroll reveal ---
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+  </script>
+</body>
+</html>
