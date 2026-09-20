@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://videopicyontsi-glitch.github.io/netanel/sitemap.xml
